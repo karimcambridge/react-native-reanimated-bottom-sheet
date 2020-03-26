@@ -115,6 +115,11 @@ type Props = {
   onCloseEnd?: () => void
   callbackThreshold?: number
   borderRadius?: number
+
+  panMasterState?: Animated.Value<number>
+  masterVelocity?: Animated.Value<number>
+  dragMasterY?: Animated.Value<number>
+  handleMasterPan?: any
 }
 
 type State = {
@@ -317,12 +322,12 @@ export default class BottomSheetBehavior extends React.Component<Props, State> {
   private tapState = new Value(0)
   private velocity = new Value(0)
   private panMasterState: Animated.Value<number> = new Value(GestureState.END)
-  private masterVelocity = new Value(0)
+  private masterVelocity: Animated.Value<number> = new Value(0)
   private isManuallySetValue: Animated.Value<number> = new Value(0)
   private manuallySetValue = new Value(0)
   private masterClockForOverscroll = new Clock()
   private preventDecaying: Animated.Value<number> = new Value(0)
-  private dragMasterY = new Value(0)
+  private dragMasterY: Animated.Value<number> = new Value(0)
   private dragY = new Value(0)
   private translateMaster: Animated.Node<number>
   private panRef: React.RefObject<PanGestureHandler>
@@ -343,6 +348,10 @@ export default class BottomSheetBehavior extends React.Component<Props, State> {
     this.master = props.innerGestureHandlerRefs[1]
     this.tapRef = props.innerGestureHandlerRefs[2]
     this.state = BottomSheetBehavior.getDerivedStateFromProps(props, undefined)
+
+    this.panMasterState = props.panMasterState || this.panMasterState
+    this.dragMasterY = props.dragMasterY || this.dragMasterY
+    this.masterVelocity = props.masterVelocity || this.masterVelocity
 
     const { snapPoints, init } = this.state
     const middlesOfSnapPoints: [
@@ -544,9 +553,9 @@ export default class BottomSheetBehavior extends React.Component<Props, State> {
   private handleMasterPan = event([
     {
       nativeEvent: {
-        translationY: this.dragMasterY,
-        state: this.panMasterState,
-        velocityY: this.masterVelocity,
+        translationY: this.props.dragMasterY || this.dragMasterY,
+        state: this.props.panMasterState || this.panMasterState,
+        velocityY: this.props.masterVelocity || this.masterVelocity,
       },
     },
   ])
@@ -824,8 +833,10 @@ export default class BottomSheetBehavior extends React.Component<Props, State> {
             }
             ref={this.master}
             waitFor={this.panRef}
-            onGestureEvent={this.handleMasterPan}
-            onHandlerStateChange={this.handleMasterPan}
+            onGestureEvent={this.props.handleMasterPan || this.handleMasterPan}
+            onHandlerStateChange={
+              this.props.handleMasterPan || this.handleMasterPan
+            }
             simultaneousHandlers={this.props.simultaneousHandlers}
           >
             <Animated.View
