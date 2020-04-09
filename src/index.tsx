@@ -132,7 +132,7 @@ type State = {
   heightOfHeaderAnimated: Animated.Value<number>
 }
 
-const { height: screenHeight } = Dimensions.get('window')
+const { height: screenHeight } = Dimensions.get('screen')
 
 const P = <T extends any>(android: T, ios: T): T =>
   Platform.OS === 'ios' ? ios : android
